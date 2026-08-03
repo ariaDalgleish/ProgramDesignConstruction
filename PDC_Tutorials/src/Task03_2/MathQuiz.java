@@ -26,19 +26,30 @@ public class MathQuiz {
         Random random = new Random();
         GameState state = new GameState();
         final int totalRounds = 3;
+        
         System.out.println("Welcome to Math Quiz Program!");
         System.out.println("Math Quiz — " + totalRounds + " rounds. Type 'x' to quit early. +10 correct, -10 wrong.");
         for (int round = 1; round <= totalRounds; round++) {
             System.out.println("Round " + round + " of " + totalRounds + ":");
 
-            int number1 = random.nextInt(101); // 0..100
-            int number2 = random.nextInt(101);
+            int number1 = 0;
+            int number2 = 0;
             char[] operators = {'+', '-', '*', '/'};
             int opIndex = random.nextInt(operators.length);
             char operator = operators[opIndex];
 
-            if (operator == '/' && number2 == 0) {
-                number2 = random.nextInt(100) + 1; // ensure non-zero
+            if (operator == '/') {
+                // make integer division questions: choose quotient and divisor so product <=100
+                int quotient = random.nextInt(10) + 1; // 1..10
+                int maxDivisor = 100 / quotient; // at least 1
+                number2 = random.nextInt(maxDivisor) + 1; // 1..maxDivisor
+                number1 = number2 * quotient;
+            } else {
+                number1 = random.nextInt(101);
+                number2 = random.nextInt(101);
+                if (operator == '-' && number1 < number2) {
+                    int tmp = number1; number1 = number2; number2 = tmp;
+                }
             }
 
             double correctAnswer;
@@ -97,4 +108,3 @@ public class MathQuiz {
         scanner.close();
     }
 }
-
