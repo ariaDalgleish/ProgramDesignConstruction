@@ -15,7 +15,7 @@ public class HelloWorld {
         System.out.println("Hello World");
         
         //create a Students instance
-        Students s1 = new Students("Leo", 30);
+        Students s1 = new Students("Aria", 30);
         System.out.println("Student Name: " + s1.getName());
     }
 
