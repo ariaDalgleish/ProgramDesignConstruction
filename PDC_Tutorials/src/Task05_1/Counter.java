@@ -21,16 +21,17 @@ public class Counter implements Runnable {
     }
 
     public Counter(int i) {
-        this.num = i;
+        this.num = i;            
     }
 
     @Override
+    @SuppressWarnings("BusyWait")
     // Run replaces printNum(), main creates a thread and calls .start
     public void run(){
         for(int j = this.num; j <= 10; j += 2){
             System.out.print(j + " ");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(1000); // Performance warning appears
             } catch (InterruptedException e){
                 System.out.println("Interrupted");
             }
