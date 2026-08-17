@@ -8,6 +8,20 @@ package Task05_2;
  *
  * @author tdp6747
  */
-public class Space {
-    
+public class Space implements Runnable {
+
+    private Figure fig;
+    private int max;
+
+    public Space(Figure fig) {
+        this.fig = fig;
+        this.max = 9;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 1; i <= max; i++) {
+            fig.printSpace(i);
+        }
+    }
 }
