@@ -24,4 +24,10 @@ public interface CalendarSource {
  
     /** Whether a real calendar has been imported yet. */
     boolean isConfigured();
+    
+    /**
+     * Attempts to import calendar data from a URL. Returns true if the
+     * import succeeded and this source is now configured, false otherwise.
+     */
+    boolean importFromUrl(String url);
 }
