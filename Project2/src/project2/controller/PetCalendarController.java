@@ -1,11 +1,10 @@
 package project2.controller;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import javax.swing.Timer;
 
@@ -73,46 +72,31 @@ public class PetCalendarController implements CalendarListener, PetListener {
         view.showThePetState(newState);
     }
 
-    /** What each of the buttons does. */
+    /**
+     * What each of the buttons does. The lambda shorthand is used here, so
+     * that the five buttons do not all look the same: it says the same thing
+     * as the long form of a listener, it is just shorter.
+     */
     private void addButtonListeners() {
-        view.getWakeButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                pet.wake();
-                showTheDay();
-            }
+        view.getWakeButton().addActionListener(event -> {
+            pet.wake();
+            showTheDay();
         });
 
-        view.getBackButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                moveToTheDayBefore();
-            }
-        });
+        view.getBackButton().addActionListener(event -> moveTheDay(pet::back));
 
-        view.getTodayButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                moveToToday();
-            }
-        });
+        view.getTodayButton().addActionListener(event -> moveTheDay(pet::reset));
 
-        view.getNextButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                moveToTheNextDay();
-            }
-        });
+        view.getNextButton().addActionListener(event -> moveTheDay(pet::next));
 
-        view.getAddButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                openTheAddEventWindow();
-            }
-        });
+        view.getAddButton().addActionListener(event -> openTheAddEventWindow());
     }
 
-    /** Clicking the pet wakes it up. */
+    /**
+     * Clicking the pet wakes it up. This one listener stays in the long
+     * form, because the mouse listener has several methods in it and the
+     * lambda shorthand can only be used with a listener of one method.
+     */
     private void addPictureListener() {
         view.getPetPicture().addMouseListener(new MouseAdapter() {
             @Override
@@ -128,14 +112,11 @@ public class PetCalendarController implements CalendarListener, PetListener {
      * runs on the Swing thread, so there is no sleeping loop anywhere.
      */
     private Timer makeTheTimer() {
-        Timer newTimer = new Timer(TIMER_INTERVAL_MILLIS, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                if (pet.checkIdleTimeout()) {
-                    // The pet has fallen asleep, so the day has gone back to
-                    // today and the window has to show it.
-                    showTheDay();
-                }
+        Timer newTimer = new Timer(TIMER_INTERVAL_MILLIS, event -> {
+            if (pet.checkIdleTimeout()) {
+                // The pet has fallen asleep, so the day has gone back to
+                // today and the window has to show it.
+                showTheDay();
             }
         });
 
@@ -143,35 +124,15 @@ public class PetCalendarController implements CalendarListener, PetListener {
     }
 
     /**
-     * Moves the calendar to the day before. The pet decides whether it may
-     * be moved, so nothing happens while the pet is asleep.
+     * Moves the calendar, if the pet lets it. The pet says whether it did
+     * anything, so the rule "the calendar does not move while the pet is
+     * asleep" is kept in one place and the three buttons that move the
+     * calendar do not each need their own copy of it.
+     *
+     * @param move what is to be done: the day before, today or the day after
      */
-    private void moveToTheDayBefore() {
-        if (!pet.back()) {
-            view.showTheStatus("Wake the pet up first.");
-            return;
-        }
-
-        showTheDay();
-    }
-
-    /**
-     * Moves the calendar back to today.
-     */
-    private void moveToToday() {
-        if (!pet.reset()) {
-            view.showTheStatus("Wake the pet up first.");
-            return;
-        }
-
-        showTheDay();
-    }
-
-    /**
-     * Moves the calendar to the next day.
-     */
-    private void moveToTheNextDay() {
-        if (!pet.next()) {
+    private void moveTheDay(BooleanSupplier move) {
+        if (!move.getAsBoolean()) {
             view.showTheStatus("Wake the pet up first.");
             return;
         }

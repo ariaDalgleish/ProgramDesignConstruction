@@ -16,6 +16,7 @@ so it doubles as a record of what was done in each one.
 | 3 | 8 — JDBC | The events are kept in an embedded Derby database |
 | 4 | 9 — MVC and patterns | The window, the pet and the events are three separate parts |
 | 5 | 10 — V&V and JUnit | 59 unit tests and a manual test log |
+| 6 | 11A — Code smells | The copies are gone and the numbers have names |
 
 ## Stage 1: the window (Lecture 6)
 
@@ -192,6 +193,58 @@ mistake in the program, an *error* is a mistake in the test.
 One thing was noticed but left as it is: the buttons are not greyed out while
 the pet is asleep, the window says "Wake the pet up first." instead. That is
 what the console version does as well, so it is not a fault.
+
+## Stage 6: code smells (Lecture 11A)
+
+The program was read through looking for the smells of the lecture: things
+that are copied, things that are repeated and things that are hidden inside
+numbers.
+
+### The copies that were found
+
+| # | What was copied | Where | What was done |
+|---|---|---|---|
+| 1 | The four long button listeners, all saying the same thing in the long form | `PetCalendarController` | The lambda shorthand is used now, so each button is one line: `view.getNextButton().addActionListener(event -> moveTheDay(pet::next));` |
+| 2 | Three methods that did the same thing with a different day: `moveToTheDayBefore`, `moveToToday` and `moveToTheNextDay` | `PetCalendarController` | They are now one method, `moveTheDay(BooleanSupplier)`, and it is told what to do. The `BooleanSupplier` is the same idea as the one in the console version. |
+| 3 | The two long listeners of the small window | `AddEventDialog` | The lambda shorthand is used now. |
+| 4 | Three methods in the model that did the same thing: `next`, `back` and `reset` were the same code with a different day | `Pet` | They are now one line each, and the rule "not while the pet is asleep" lives in one method, `moveToThisDate`. |
+| 5 | The numbers of the ears and of the window | `PetView`, `PetPicturePanel`, `AddEventDialog` | They are named constants now, such as `WINDOW_WIDTH` and `EAR_TIP_HEIGHT`. |
+
+The listener on the picture of the pet is still in the long form. The mouse
+listener has several methods in it and the lambda shorthand can only be used
+with a listener of one method, so it cannot be shortened.
+
+The four lines that tell the listeners about a change are written twice — once
+in `Pet` and once in `CalendarService`. That was left alone on purpose: the
+two are in different parts of the program, and making a class of their own for
+four lines would be more complicated than the lines it saves.
+
+### The console prints
+
+There are no `System.out` prints in the classes of the GUI. The problems are
+reported through exceptions instead: `ValidationException` carries a list of
+all the problems with an event, and `DataAccessException` says that the
+database could not be read or written. So the window can be changed without
+the model being changed with it.
+
+### The events that were there twice
+
+This one was in the console version, not in the GUI. `loadLines` in
+`AbstractCalendarSource` added the events to the list of the day every time
+it was called, and it never emptied that list first. Importing the calendar
+from a URL a second time therefore showed every event twice. The list is
+emptied at the start of `loadLines` now, so the calendar is loaded the same
+way every time.
+
+### The coupling
+
+The window only asks the model for things through getters, and the model
+knows nothing about the window. The window knows the database only through
+the `EventDao` interface, and no SQL is written outside the data layer. The
+big old `Pet` of the console version was split into the model, the view and
+the controller in stage 4, which is the bloater of the lecture.
+
+The 59 tests still pass after the clean up.
 
 ## Running it
 

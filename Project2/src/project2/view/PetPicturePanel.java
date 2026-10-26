@@ -26,6 +26,17 @@ public class PetPicturePanel extends JPanel {
     private static final int BODY_COLOUR_BLUE = 123;
     private static final int EYE_SIZE = 8;
 
+    // The space that is left around the pet.
+    private static final int BODY_MARGIN = 20;
+
+    // The ears. The left ear and the right ear are the same, the other way
+    // round, so only the left one is written down here.
+    private static final int EAR_INSET = 10;      // how far the ear is in from the side of the head
+    private static final int EAR_WIDTH = 30;      // how wide the bottom of the ear is
+    private static final int EAR_TIP_INSET = 20;  // how far the point of the ear is from the side
+    private static final int EAR_BASE_OFFSET = 20; // how far down the head the bottom of the ear is
+    private static final int EAR_TIP_HEIGHT = 10;  // how far the point of the ear is above the head
+
     private boolean asleep = true;
 
     public PetPicturePanel() {
@@ -56,16 +67,13 @@ public class PetPicturePanel extends JPanel {
         int width = getWidth();
         int height = getHeight();
 
-        int bodySize = Math.min(width, height) - 20;
+        int bodySize = Math.min(width, height) - BODY_MARGIN;
         int bodyX = (width - bodySize) / 2;
         int bodyY = (height - bodySize) / 2;
 
         // The ears.
         g2.setColor(new Color(BODY_COLOUR_RED, BODY_COLOUR_GREEN, BODY_COLOUR_BLUE));
-        g2.fillPolygon(new int[]{bodyX + 10, bodyX + 40, bodyX + 20},
-                new int[]{bodyY + 20, bodyY + 20, bodyY - 10}, 3);
-        g2.fillPolygon(new int[]{bodyX + bodySize - 40, bodyX + bodySize - 10, bodyX + bodySize - 20},
-                new int[]{bodyY + 20, bodyY + 20, bodyY - 10}, 3);
+        drawTheEars(g2, bodyX, bodyY, bodySize);
 
         // The head.
         g2.fillOval(bodyX, bodyY, bodySize, bodySize);
@@ -85,5 +93,24 @@ public class PetPicturePanel extends JPanel {
         // The smile.
         g2.drawArc(bodyX + bodySize / 3, bodyY + bodySize / 2,
                 bodySize / 3, bodySize / 4, 200, 140);
+    }
+
+    /**
+     * Draws the two ears of the pet. The right ear is the left ear the other
+     * way round, so the numbers of the left ear are the numbers of the right
+     * one as well.
+     */
+    private void drawTheEars(Graphics2D g2, int bodyX, int bodyY, int bodySize) {
+        int leftCorner = bodyX + EAR_INSET;
+        int rightCorner = bodyX + bodySize - EAR_INSET - EAR_WIDTH;
+        int leftTip = bodyX + EAR_TIP_INSET;
+        int rightTip = bodyX + bodySize - EAR_TIP_INSET;
+        int bottom = bodyY + EAR_BASE_OFFSET;
+        int point = bodyY - EAR_TIP_HEIGHT;
+
+        g2.fillPolygon(new int[]{leftCorner, leftCorner + EAR_WIDTH, leftTip},
+                new int[]{bottom, bottom, point}, 3);
+        g2.fillPolygon(new int[]{rightCorner + EAR_WIDTH, rightCorner, rightTip},
+                new int[]{bottom, bottom, point}, 3);
     }
 }

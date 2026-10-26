@@ -36,6 +36,13 @@ public class PetView extends JFrame {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("EEE, dd MMM", Locale.ENGLISH);
 
+    // The size of the window.
+    private static final int WINDOW_WIDTH = 660;
+    private static final int WINDOW_HEIGHT = 520;
+
+    // The size of the square the pet is drawn in.
+    private static final int PICTURE_SIZE = 180;
+
     private final JLabel speechLabel = new JLabel(" ");
     private final JLabel dateLabel = new JLabel(" ");
     private final JLabel statusLabel = new JLabel(" ");
@@ -51,7 +58,7 @@ public class PetView extends JFrame {
         super("Pet Calendar");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(660, 520);
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setLocationRelativeTo(null);
 
         add(buildTopPanel(), BorderLayout.NORTH);
@@ -75,7 +82,7 @@ public class PetView extends JFrame {
     private JPanel buildMiddlePanel() {
         JPanel middle = new JPanel(new BorderLayout());
 
-        petPicture.setPreferredSize(new Dimension(180, 180));
+        petPicture.setPreferredSize(new Dimension(PICTURE_SIZE, PICTURE_SIZE));
         middle.add(petPicture, BorderLayout.WEST);
 
         eventsArea.setEditable(false);

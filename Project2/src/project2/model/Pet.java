@@ -79,15 +79,7 @@ public class Pet {
      * @return true if the calendar was moved
      */
     public boolean next() {
-        if (state == PetState.SLEEPING) {
-            return false;
-        }
-
-        beginActivity();
-        currentDate = currentDate.plusDays(1);
-        endActivity();
-
-        return true;
+        return moveToThisDate(currentDate.plusDays(1));
     }
 
     /**
@@ -97,15 +89,7 @@ public class Pet {
      * @return true if the calendar was moved
      */
     public boolean back() {
-        if (state == PetState.SLEEPING) {
-            return false;
-        }
-
-        beginActivity();
-        currentDate = currentDate.minusDays(1);
-        endActivity();
-
-        return true;
+        return moveToThisDate(currentDate.minusDays(1));
     }
 
     /**
@@ -115,12 +99,23 @@ public class Pet {
      * @return true if the calendar was moved
      */
     public boolean reset() {
+        return moveToThisDate(LocalDate.now());
+    }
+
+    /**
+     * Moves the calendar to a day. Nothing happens while the pet is asleep,
+     * and the pet is busy for a moment while it moves.
+     *
+     * @param newDate the day to move to
+     * @return true if the calendar was moved
+     */
+    private boolean moveToThisDate(LocalDate newDate) {
         if (state == PetState.SLEEPING) {
             return false;
         }
 
         beginActivity();
-        currentDate = LocalDate.now();
+        currentDate = newDate;
         endActivity();
 
         return true;

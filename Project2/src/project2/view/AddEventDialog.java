@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -41,11 +39,27 @@ public class AddEventDialog extends JDialog {
     private static final String TIME_PATTERN = "HH:mm";
     private static final String START_TIME = "09:00";
 
+    // The size of the small window.
+    private static final int DIALOG_WIDTH = 340;
+    private static final int DIALOG_GAP = 8;
+
+    // The size of the boxes. The date and the time are short, the title and
+    // the place are longer.
+    private static final int SHORT_FIELD_COLUMNS = 12;
+    private static final int LONG_FIELD_COLUMNS = 20;
+
+    // The form has one row for each part of the event, with a label and a
+    // box side by side.
+    private static final int FORM_ROWS = 5;
+    private static final int FORM_COLUMNS = 2;
+    private static final int FORM_GAP_X = 8;
+    private static final int FORM_GAP_Y = 4;
+
     private final CalendarService service;
-    private final JTextField dateField = new JTextField(12);
-    private final JTextField timeField = new JTextField(12);
-    private final JTextField titleField = new JTextField(20);
-    private final JTextField locationField = new JTextField(20);
+    private final JTextField dateField = new JTextField(SHORT_FIELD_COLUMNS);
+    private final JTextField timeField = new JTextField(SHORT_FIELD_COLUMNS);
+    private final JTextField titleField = new JTextField(LONG_FIELD_COLUMNS);
+    private final JTextField locationField = new JTextField(LONG_FIELD_COLUMNS);
     private final JLabel messageLabel = new JLabel(" ");
 
     /**
@@ -60,18 +74,18 @@ public class AddEventDialog extends JDialog {
         dateField.setText(date.format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
         timeField.setText(START_TIME);
 
-        setLayout(new BorderLayout(8, 8));
+        setLayout(new BorderLayout(DIALOG_GAP, DIALOG_GAP));
         add(buildForm(), BorderLayout.CENTER);
         add(buildButtons(), BorderLayout.SOUTH);
 
         pack();
-        setMinimumSize(new Dimension(340, getHeight()));
+        setMinimumSize(new Dimension(DIALOG_WIDTH, getHeight()));
         setLocationRelativeTo(owner);
     }
 
     /** The boxes the user types into, one row for each part of the event. */
     private JPanel buildForm() {
-        JPanel form = new JPanel(new GridLayout(5, 2, 8, 4));
+        JPanel form = new JPanel(new GridLayout(FORM_ROWS, FORM_COLUMNS, FORM_GAP_X, FORM_GAP_Y));
 
         form.add(new JLabel("Date"));
         form.add(dateField);
@@ -94,19 +108,9 @@ public class AddEventDialog extends JDialog {
         JButton addButton = new JButton("Add");
         JButton cancelButton = new JButton("Cancel");
 
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                addTheEvent();
-            }
-        });
+        addButton.addActionListener(event -> addTheEvent());
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                dispose();
-            }
-        });
+        cancelButton.addActionListener(event -> dispose());
 
         buttons.add(addButton);
         buttons.add(cancelButton);
