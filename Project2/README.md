@@ -17,6 +17,7 @@ so it doubles as a record of what was done in each one.
 | 4 | 9 — MVC and patterns | The window, the pet and the events are three separate parts |
 | 5 | 10 — V&V and JUnit | 59 unit tests and a manual test log |
 | 6 | 11A — Code smells | The copies are gone and the numbers have names |
+| 7 | 12 — Summary | The final checklist, the merge into `main` and the tag `v2.0.0` |
 
 ## Stage 1: the window (Lecture 6)
 
@@ -245,6 +246,33 @@ big old `Pet` of the console version was split into the model, the view and
 the controller in stage 4, which is the bloater of the lecture.
 
 The 59 tests still pass after the clean up.
+
+## Stage 7: the final check (Lecture 12)
+
+The last lecture goes through everything, so it is used here as a checklist of
+the finished program.
+
+| What the lecture asks for | Where it is in this program |
+|---|---|
+| **Encapsulation** | `Event` cannot be changed after it is made — it is `final`, its fields are `final` and there are no setters. `Pet` keeps its state to itself and tells its listeners when something changes. |
+| **Abstraction** | The controller does not know how the events are stored; it asks the service, and the service asks the `EventDao` interface. The window only knows the database through that one interface. |
+| **Inheritance** | `PetView extends JFrame`, `AddEventDialog extends JDialog` and `PetPicturePanel extends JPanel`. In the console version it is `LocalFileCalendarSource extends AbstractCalendarSource`. |
+| **Polymorphism** | `JdbcEventDao` and the stand-in `InMemoryEventDao` are both used through the `EventDao` interface, and the service cannot tell them apart. The controller listens to the pet and to the service through two different listener interfaces. |
+| **Single responsibility** | Every package has one job: the model holds the data, the view draws it, the controller connects them, the service holds the rules and the data layer holds the SQL. |
+| **Open / Closed and dependency inversion** | A new kind of database only needs a new class that implements `EventDao`; the service and the window are not touched. The window is changed without the model being changed with it. |
+| **Multi-threading** | The idle timer of the pet runs on the Swing `Timer`, so there is no sleeping loop and the window keeps answering. |
+| **GUI** | Stage 1 — the window, its layout, the buttons and the small window for typing in an event. |
+| **Patterns** | Stage 4 — MVC, DAO, Singleton, Factory and Observer. |
+| **Testing** | Stage 5 — 59 unit tests and the manual test log. |
+| **Code smells** | Stage 6 — the copies are gone, the numbers have names and there are no console prints. |
+| **Database** | Stage 3 — the events are kept in an embedded Derby database with no setting up by hand. |
+| **Git** | Stage 2 and stage 7 — the console version is tagged `v1.0.0`, every stage is a commit on the `gui` branch, and the finished GUI is merged into `main` and tagged `v2.0.0`. |
+
+### The last run
+
+Everything was run once more at the end: the 59 tests pass, the window was
+walked through with the buttons clicked again, and the answer of the window
+came back within two seconds, so the Swing thread was not held up.
 
 ## Running it
 
