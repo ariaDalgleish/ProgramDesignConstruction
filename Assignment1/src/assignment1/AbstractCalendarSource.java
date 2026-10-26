@@ -33,6 +33,10 @@ public abstract class AbstractCalendarSource implements CalendarSource {
      * still reported to the user rather than silently skipped.
      */
     protected void loadLines(List<String> lines) {
+        // The events of the last load are thrown away first, so that loading
+        // the calendar again does not add every event a second time.
+        eventsByDate.clear();
+
         int lineNumber = 0;
         for (String line : lines) {
             lineNumber++;
