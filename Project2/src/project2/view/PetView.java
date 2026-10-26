@@ -24,10 +24,9 @@ import project2.model.PetState;
  * @author aria
  *
  * The window of the calendar pet.
- *
+ * Model-View-Controller split
  * The window knows nothing about the database and nothing about the rules of
- * the pet. It shows what it is told to show and hands the clicks on its
- * buttons to the controller. That is the Model-View-Controller split.
+ * the pet. 
  */
 public class PetView extends JFrame {
 
@@ -134,12 +133,12 @@ public class PetView extends JFrame {
         return petPicture;
     }
 
-    /** Shows the day that is being looked at. */
+    /** Day viewed */
     public void showTheDay(LocalDate date) {
         dateLabel.setText(date.format(DATE_FORMATTER).toUpperCase());
     }
 
-    /** Shows the events of the day. */
+    /** Events of the day. */
     public void showTheEvents(List<Event> events) {
         if (events.isEmpty()) {
             eventsArea.setText("Oooo, there's um... nothing to do on this day!");
@@ -158,7 +157,7 @@ public class PetView extends JFrame {
     public void showThePetState(PetState state) {
         switch (state) {
             case SLEEPING -> {
-                speechLabel.setText("\"zzz...\" I am asleep. Click me to wake me up.");
+                speechLabel.setText("\"zzz...\" Click me to wake me up.");
                 petPicture.setAsleep(true);
             }
             case AWAKE -> {
@@ -166,7 +165,7 @@ public class PetView extends JFrame {
                 petPicture.setAsleep(false);
             }
             case ACTIVE -> {
-                speechLabel.setText("\"Flip!\" One moment...");
+                speechLabel.setText("\"Flip!\" Hmm");
                 petPicture.setAsleep(false);
             }
         }
@@ -177,7 +176,7 @@ public class PetView extends JFrame {
         statusLabel.setText(message);
     }
 
-    /** Says that something went wrong. */
+    /** Show if something went wrong. */
     public void showTheProblem(String message) {
         JOptionPane.showMessageDialog(this, message, "Pet Calendar",
                 JOptionPane.WARNING_MESSAGE);

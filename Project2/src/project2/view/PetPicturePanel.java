@@ -10,12 +10,12 @@ import javax.swing.JPanel;
 /**
  * @author aria
  *
- * A small panel that draws the pet with Java2D. Swing calls
- * paintComponent every time the window has to be drawn again, so all of
+ * Draw pet with Java2D. 
+ * Swing calls paintComponent every time the window has to be drawn again, so all of
  * the drawing happens inside that method.
  *
  * Clicking the picture is how the user wakes the pet up. The click is dealt
- * with by the controller, so this class only knows how to draw.
+ * with by the controller.
  */
 public class PetPicturePanel extends JPanel {
 
@@ -26,11 +26,10 @@ public class PetPicturePanel extends JPanel {
     private static final int BODY_COLOUR_BLUE = 123;
     private static final int EYE_SIZE = 8;
 
-    // The space that is left around the pet.
+    // The space around the pet.
     private static final int BODY_MARGIN = 20;
 
-    // The ears. The left ear and the right ear are the same, the other way
-    // round, so only the left one is written down here.
+    // The left ear and the right ear are the same only left ear.
     private static final int EAR_INSET = 10;      // how far the ear is in from the side of the head
     private static final int EAR_WIDTH = 30;      // how wide the bottom of the ear is
     private static final int EAR_TIP_INSET = 20;  // how far the point of the ear is from the side

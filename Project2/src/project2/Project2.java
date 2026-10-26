@@ -53,14 +53,13 @@ public class Project2 {
     }
 
     /**
-     * Tries to use the look and feel of the computer. If that is not
-     * possible the window still opens, it just looks a little different.
+     * use native look and feel 
      */
     private static void useSystemLookAndFeel() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            // There is nothing to do here - the default look and feel is fine.
+            // There is nothing to do here - default.
         }
     }
 }
