@@ -60,9 +60,70 @@ public class Pet {
         return currentDate;
     }
 
-    /** Sets the day that is being looked at. */
-    public void setCurrentDate(LocalDate currentDate) {
+    /**
+     * Sets the day that is being looked at.
+     *
+     * This is not public on purpose. The day of the calendar is moved with
+     * next(), back() and reset(), so that the rule "not while the pet is
+     * asleep" cannot be forgotten. Only the pet itself and its own tests use
+     * this method.
+     */
+    void setCurrentDate(LocalDate currentDate) {
         this.currentDate = currentDate;
+    }
+
+    /**
+     * Moves the calendar to the next day. Nothing happens while the pet is
+     * asleep, the same as in the console version.
+     *
+     * @return true if the calendar was moved
+     */
+    public boolean next() {
+        if (state == PetState.SLEEPING) {
+            return false;
+        }
+
+        beginActivity();
+        currentDate = currentDate.plusDays(1);
+        endActivity();
+
+        return true;
+    }
+
+    /**
+     * Moves the calendar to the day before. Nothing happens while the pet is
+     * asleep.
+     *
+     * @return true if the calendar was moved
+     */
+    public boolean back() {
+        if (state == PetState.SLEEPING) {
+            return false;
+        }
+
+        beginActivity();
+        currentDate = currentDate.minusDays(1);
+        endActivity();
+
+        return true;
+    }
+
+    /**
+     * Moves the calendar back to today. Nothing happens while the pet is
+     * asleep.
+     *
+     * @return true if the calendar was moved
+     */
+    public boolean reset() {
+        if (state == PetState.SLEEPING) {
+            return false;
+        }
+
+        beginActivity();
+        currentDate = LocalDate.now();
+        endActivity();
+
+        return true;
     }
 
     public long getIdleTimeoutMillis() {

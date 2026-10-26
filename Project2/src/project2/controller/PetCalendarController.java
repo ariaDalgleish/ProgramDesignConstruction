@@ -86,21 +86,21 @@ public class PetCalendarController implements CalendarListener, PetListener {
         view.getBackButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                goToDay(pet.getCurrentDate().minusDays(1));
+                moveToTheDayBefore();
             }
         });
 
         view.getTodayButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                goToDay(LocalDate.now());
+                moveToToday();
             }
         });
 
         view.getNextButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                goToDay(pet.getCurrentDate().plusDays(1));
+                moveToTheNextDay();
             }
         });
 
@@ -143,19 +143,40 @@ public class PetCalendarController implements CalendarListener, PetListener {
     }
 
     /**
-     * Moves the calendar to another day. Nothing happens while the pet is
-     * asleep, the same as in the console version.
+     * Moves the calendar to the day before. The pet decides whether it may
+     * be moved, so nothing happens while the pet is asleep.
      */
-    private void goToDay(LocalDate day) {
-        if (pet.getState() == PetState.SLEEPING) {
+    private void moveToTheDayBefore() {
+        if (!pet.back()) {
             view.showTheStatus("Wake the pet up first.");
             return;
         }
 
-        pet.beginActivity();
-        pet.setCurrentDate(day);
         showTheDay();
-        pet.endActivity();
+    }
+
+    /**
+     * Moves the calendar back to today.
+     */
+    private void moveToToday() {
+        if (!pet.reset()) {
+            view.showTheStatus("Wake the pet up first.");
+            return;
+        }
+
+        showTheDay();
+    }
+
+    /**
+     * Moves the calendar to the next day.
+     */
+    private void moveToTheNextDay() {
+        if (!pet.next()) {
+            view.showTheStatus("Wake the pet up first.");
+            return;
+        }
+
+        showTheDay();
     }
 
     /** Opens the window for typing in a new event. */
