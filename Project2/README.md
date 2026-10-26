@@ -14,6 +14,7 @@ so it doubles as a record of what was done in each one.
 | 1 | 6 — GUI | The window opens with the right layout |
 | 2 | 7 — Version control | `main` is tagged `v1.0.0` and the GUI is built on the `gui` branch |
 | 3 | 8 — JDBC | The events are kept in an embedded Derby database |
+| 4 | 9 — MVC and patterns | The window, the pet and the events are three separate parts |
 
 ## Stage 1: the window (Lecture 6)
 
@@ -79,6 +80,53 @@ This version still does too much. The window changes the day itself and it
 talks to the database, and there is nothing of the console pet yet. Both of
 those are put right in the next stage.
 
+## Stage 4: MVC and the patterns (Lecture 9)
+
+The window is split into three parts that do not do each other's jobs.
+
+| Package | What is in it |
+|---|---|
+| `project2.model` | `Event`, `Pet`, `PetState`, `PetListener` — the data and the pet |
+| `project2.service` | `CalendarService`, `CalendarListener`, `ValidationException` — the rules of the calendar |
+| `project2.view` | `PetView`, `PetPicturePanel`, `AddEventDialog` — the window |
+| `project2.controller` | `PetCalendarController` — the clicks on the buttons |
+| `project2.data` | `EventDao`, `JdbcEventDao`, `Database`, `Schema`, `EventDaoFactory` — the database |
+
+- The **window knows nothing** about the database and nothing about the
+  rules of the pet. It shows what it is told to show and hands the clicks to
+  the controller.
+- The **controller** is the only class that knows about the window, the pet
+  and the service. It turns a click into a change and a change into an
+  update of the window.
+- The **service** holds the rules of the calendar. It checks an event before
+  it is saved and tells everybody who is interested when the events change.
+
+The patterns that are used, and where:
+
+| Pattern | Where |
+|---|---|
+| Model-View-Controller | the `model`, `view` and `controller` packages |
+| DAO | `EventDao` (the interface) and `JdbcEventDao` (the implementation) |
+| Singleton | `Database` — Derby allows only one connection to a database |
+| Factory | `EventDaoFactory` — the only place that says which DAO is used |
+| Observer | `Pet` → `PetListener` and `CalendarService` → `CalendarListener` |
+
+### The pet
+
+The pet is the same idea as the console pet in Assignment 1. It has three
+states — `SLEEPING`, `AWAKE` and `ACTIVE` — and it keeps the day that is
+being looked at.
+
+- The pet starts asleep. The **Wake** button and clicking the picture wake
+  it up.
+- While the pet is asleep the calendar does not move — the screen says
+  "Wake the pet up first."
+- The pet goes back to sleep after a minute of not being used. The day goes
+  back to today as well, so waking it up later always starts from the
+  current day.
+- When the pet changes state it tells its listeners, and the controller
+  shows the new state in the window (the Observer pattern).
+
 ## Running it
 
 In NetBeans: open the `Project2` project and press **Run**.
@@ -92,6 +140,6 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-25"
 & "$env:JAVA_HOME\bin\java" -cp "build\classes;lib\derby.jar" project2.Project2
 ```
 
-The **Add event** button and the **Back**, **Today** and **Next** buttons
-work now. The pet itself is still only a picture — it does not sleep and it
-does not wake up yet.
+The pet sleeps, it wakes up when the **Wake** button is pressed or when it
+is clicked, the **Back**, **Today** and **Next** buttons move through the
+days, and the **Add event** button saves a new event in the database.

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -19,8 +20,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import project2.data.DataAccessException;
-import project2.data.EventDao;
-import project2.model.Event;
+import project2.service.CalendarService;
+import project2.service.ValidationException;
 
 /**
  * @author aria
@@ -28,8 +29,9 @@ import project2.model.Event;
  * The small window where a new event is typed in. The date and the time are
  * typed as text, for example 2026-10-26 and 09:30.
  *
- * If something is wrong with the typing the window stays open and says what
- * is wrong, so the user does not have to start again.
+ * The window does not check the event itself. It hands the typing to the
+ * service, and if the service finds a problem the window stays open and says
+ * what is wrong, so the user does not lose what they have typed.
  */
 public class AddEventDialog extends JDialog {
 
@@ -39,7 +41,7 @@ public class AddEventDialog extends JDialog {
     private static final String TIME_PATTERN = "HH:mm";
     private static final String START_TIME = "09:00";
 
-    private final EventDao eventDao;
+    private final CalendarService service;
     private final JTextField dateField = new JTextField(12);
     private final JTextField timeField = new JTextField(12);
     private final JTextField titleField = new JTextField(20);
@@ -47,13 +49,13 @@ public class AddEventDialog extends JDialog {
     private final JLabel messageLabel = new JLabel(" ");
 
     /**
-     * @param owner   the window this dialog belongs to
-     * @param eventDao where the new event is saved
-     * @param date    the day the new event is for
+     * @param owner  the window this dialog belongs to
+     * @param service where the new event is checked and saved
+     * @param date   the day the new event is for
      */
-    public AddEventDialog(Window owner, EventDao eventDao, LocalDate date) {
+    public AddEventDialog(Window owner, CalendarService service, LocalDate date) {
         super(owner, "Add event", ModalityType.APPLICATION_MODAL);
-        this.eventDao = eventDao;
+        this.service = service;
 
         dateField.setText(date.format(DateTimeFormatter.ofPattern(DATE_PATTERN)));
         timeField.setText(START_TIME);
@@ -112,7 +114,7 @@ public class AddEventDialog extends JDialog {
     }
 
     /**
-     * Reads what was typed and saves it as a new event. The window only
+     * Reads what was typed and asks the service to save it. The window only
      * closes when the event has really been saved.
      */
     private void addTheEvent() {
@@ -129,20 +131,29 @@ public class AddEventDialog extends JDialog {
         }
 
         String title = titleField.getText().trim();
-        if (title.isEmpty()) {
-            messageLabel.setText("Please give the event a title.");
-            return;
-        }
-
         String location = locationField.getText().trim();
 
         try {
-            eventDao.insert(new Event(date, time, title, location));
+            service.addEvent(date, time, title, location);
+        } catch (ValidationException e) {
+            messageLabel.setText(buildTheMessage(e.getProblems()));
+            return;
         } catch (DataAccessException e) {
             messageLabel.setText("The event could not be saved: " + e.getMessage());
             return;
         }
 
         dispose();
+    }
+
+    /** Puts all the problems under each other, so that they can all be seen. */
+    private String buildTheMessage(List<String> problems) {
+        StringBuilder message = new StringBuilder("<html>");
+        for (String problem : problems) {
+            message.append(problem);
+            message.append("<br>");
+        }
+        message.append("</html>");
+        return message.toString();
     }
 }

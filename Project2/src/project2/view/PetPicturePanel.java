@@ -14,8 +14,8 @@ import javax.swing.JPanel;
  * paintComponent every time the window has to be drawn again, so all of
  * the drawing happens inside that method.
  *
- * Drawing the pet is optional in the brief, but it makes the program look
- * like the console version of the pet, so it is worth doing.
+ * Clicking the picture is how the user wakes the pet up. The click is dealt
+ * with by the controller, so this class only knows how to draw.
  */
 public class PetPicturePanel extends JPanel {
 
@@ -26,8 +26,16 @@ public class PetPicturePanel extends JPanel {
     private static final int BODY_COLOUR_BLUE = 123;
     private static final int EYE_SIZE = 8;
 
+    private boolean asleep = true;
+
     public PetPicturePanel() {
         setBackground(Color.WHITE);
+    }
+
+    /** Whether the pet is asleep. A sleeping pet has its eyes closed. */
+    public void setAsleep(boolean asleep) {
+        this.asleep = asleep;
+        repaint();
     }
 
     @Override
@@ -64,8 +72,15 @@ public class PetPicturePanel extends JPanel {
 
         // The eyes.
         g2.setColor(Color.BLACK);
-        g2.fillOval(bodyX + bodySize / 4, bodyY + bodySize / 3, EYE_SIZE, EYE_SIZE);
-        g2.fillOval(bodyX + bodySize * 2 / 3, bodyY + bodySize / 3, EYE_SIZE, EYE_SIZE);
+        int eyeY = bodyY + bodySize / 3;
+        if (asleep) {
+            // A sleeping pet has its eyes closed.
+            g2.drawArc(bodyX + bodySize / 4 - 2, eyeY, EYE_SIZE + 4, EYE_SIZE + 4, 200, 140);
+            g2.drawArc(bodyX + bodySize * 2 / 3 - 2, eyeY, EYE_SIZE + 4, EYE_SIZE + 4, 200, 140);
+        } else {
+            g2.fillOval(bodyX + bodySize / 4, eyeY, EYE_SIZE, EYE_SIZE);
+            g2.fillOval(bodyX + bodySize * 2 / 3, eyeY, EYE_SIZE, EYE_SIZE);
+        }
 
         // The smile.
         g2.drawArc(bodyX + bodySize / 3, bodyY + bodySize / 2,

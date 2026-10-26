@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -14,24 +12,22 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import project2.data.DataAccessException;
-import project2.data.EventDao;
 import project2.model.Event;
+import project2.model.PetState;
 
 /**
  * @author aria
  *
- * The window of the calendar pet. The layout is the one from Lecture 6, but
- * now the events come out of the database (Lecture 8) and there is an
- * "Add event" button.
+ * The window of the calendar pet.
  *
- * This version still does too much: it changes the day itself and it talks
- * to the database. Both of those are moved out into the model and the
- * controller in the next stage (Lecture 9).
+ * The window knows nothing about the database and nothing about the rules of
+ * the pet. It shows what it is told to show and hands the clicks on its
+ * buttons to the controller. That is the Model-View-Controller split.
  */
 public class PetView extends JFrame {
 
@@ -40,36 +36,27 @@ public class PetView extends JFrame {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("EEE, dd MMM", Locale.ENGLISH);
 
-    private final EventDao eventDao;
-    private LocalDate currentDate;
-
-    private final JLabel speechLabel = new JLabel("\"zzz...\" I am asleep.");
-    private final JLabel dateLabel = new JLabel("");
+    private final JLabel speechLabel = new JLabel(" ");
+    private final JLabel dateLabel = new JLabel(" ");
+    private final JLabel statusLabel = new JLabel(" ");
     private final JTextArea eventsArea = new JTextArea();
     private final JButton wakeButton = new JButton("Wake");
     private final JButton backButton = new JButton("Back");
     private final JButton todayButton = new JButton("Today");
     private final JButton nextButton = new JButton("Next");
     private final JButton addButton = new JButton("Add event");
+    private final PetPicturePanel petPicture = new PetPicturePanel();
 
-    /**
-     * @param eventDao where the events are read from and saved to
-     */
-    public PetView(EventDao eventDao) {
+    public PetView() {
         super("Pet Calendar");
-        this.eventDao = eventDao;
-        this.currentDate = LocalDate.now();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(640, 480);
+        setSize(660, 520);
         setLocationRelativeTo(null);
 
         add(buildTopPanel(), BorderLayout.NORTH);
         add(buildMiddlePanel(), BorderLayout.CENTER);
-        add(buildButtonPanel(), BorderLayout.SOUTH);
-
-        addButtonListeners();
-        showTheDay(currentDate);
+        add(buildBottomPanel(), BorderLayout.SOUTH);
     }
 
     /** The speech and the date, one above the other. */
@@ -88,9 +75,8 @@ public class PetView extends JFrame {
     private JPanel buildMiddlePanel() {
         JPanel middle = new JPanel(new BorderLayout());
 
-        PetPicturePanel picture = new PetPicturePanel();
-        picture.setPreferredSize(new Dimension(170, 170));
-        middle.add(picture, BorderLayout.WEST);
+        petPicture.setPreferredSize(new Dimension(180, 180));
+        middle.add(petPicture, BorderLayout.WEST);
 
         eventsArea.setEditable(false);
         eventsArea.setLineWrap(true);
@@ -99,73 +85,55 @@ public class PetView extends JFrame {
         return middle;
     }
 
-    /** The buttons along the bottom. */
-    private JPanel buildButtonPanel() {
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    /** The buttons along the bottom and the status line under them. */
+    private JPanel buildBottomPanel() {
+        JPanel bottom = new JPanel(new BorderLayout());
 
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttons.add(wakeButton);
         buttons.add(backButton);
         buttons.add(todayButton);
         buttons.add(nextButton);
         buttons.add(addButton);
-        return buttons;
+        bottom.add(buttons, BorderLayout.CENTER);
+
+        statusLabel.setHorizontalAlignment(JLabel.CENTER);
+        bottom.add(statusLabel, BorderLayout.SOUTH);
+
+        return bottom;
     }
 
-    /** What each of the buttons does. */
-    private void addButtonListeners() {
-        wakeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                speechLabel.setText("\"Mmmrm...\" I am awake!");
-            }
-        });
-
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                showTheDay(currentDate.minusDays(1));
-            }
-        });
-
-        todayButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                showTheDay(LocalDate.now());
-            }
-        });
-
-        nextButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                showTheDay(currentDate.plusDays(1));
-            }
-        });
-
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                openTheAddEventWindow();
-            }
-        });
+    public JButton getWakeButton() {
+        return wakeButton;
     }
 
-    /**
-     * Shows the events of the given day. The events are read from the
-     * database every time, so a new event shows up straight away.
-     */
-    private void showTheDay(LocalDate date) {
-        currentDate = date;
+    public JButton getBackButton() {
+        return backButton;
+    }
+
+    public JButton getTodayButton() {
+        return todayButton;
+    }
+
+    public JButton getNextButton() {
+        return nextButton;
+    }
+
+    public JButton getAddButton() {
+        return addButton;
+    }
+
+    public PetPicturePanel getPetPicture() {
+        return petPicture;
+    }
+
+    /** Shows the day that is being looked at. */
+    public void showTheDay(LocalDate date) {
         dateLabel.setText(date.format(DATE_FORMATTER).toUpperCase());
-        speechLabel.setText("\"Flip!\" I turned the page.");
+    }
 
-        List<Event> events;
-        try {
-            events = eventDao.findByDate(date);
-        } catch (DataAccessException e) {
-            eventsArea.setText("The events could not be read: " + e.getMessage());
-            return;
-        }
-
+    /** Shows the events of the day. */
+    public void showTheEvents(List<Event> events) {
         if (events.isEmpty()) {
             eventsArea.setText("Oooo, there's um... nothing to do on this day!");
             return;
@@ -179,13 +147,32 @@ public class PetView extends JFrame {
         eventsArea.setText(text.toString());
     }
 
-    /** Opens the window for typing in a new event. */
-    private void openTheAddEventWindow() {
-        AddEventDialog dialog = new AddEventDialog(this, eventDao, currentDate);
-        dialog.setVisible(true);
+    /** Shows what the pet is doing. */
+    public void showThePetState(PetState state) {
+        switch (state) {
+            case SLEEPING -> {
+                speechLabel.setText("\"zzz...\" I am asleep. Click me to wake me up.");
+                petPicture.setAsleep(true);
+            }
+            case AWAKE -> {
+                speechLabel.setText("\"Mmmrm...\" What is on today?");
+                petPicture.setAsleep(false);
+            }
+            case ACTIVE -> {
+                speechLabel.setText("\"Flip!\" One moment...");
+                petPicture.setAsleep(false);
+            }
+        }
+    }
 
-        // The window is closed by now, so the day is shown again to pick up
-        // the new event.
-        showTheDay(currentDate);
+    /** Shows a message under the buttons. */
+    public void showTheStatus(String message) {
+        statusLabel.setText(message);
+    }
+
+    /** Says that something went wrong. */
+    public void showTheProblem(String message) {
+        JOptionPane.showMessageDialog(this, message, "Pet Calendar",
+                JOptionPane.WARNING_MESSAGE);
     }
 }

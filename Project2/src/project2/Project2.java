@@ -5,16 +5,20 @@ import java.awt.EventQueue;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import project2.controller.PetCalendarController;
 import project2.data.DataAccessException;
-import project2.data.Database;
 import project2.data.EventDao;
-import project2.data.JdbcEventDao;
+import project2.data.EventDaoFactory;
+import project2.model.Pet;
+import project2.service.CalendarService;
 import project2.view.PetView;
 
 /**
  * @author aria
  *
- * Starts the program. It opens the database and then shows the window.
+ * Starts the program. This class only sets the program up: it makes the
+ * database source, the pet, the window and the controller, and then it opens
+ * the window.
  *
  * Swing asks that the whole window is built on the event thread, which is
  * what EventQueue.invokeLater does.
@@ -28,11 +32,15 @@ public class Project2 {
                 useSystemLookAndFeel();
 
                 try {
-                    // The connection is only opened once, here. Everybody else
-                    // asks the Database class for it.
-                    EventDao eventDao = new JdbcEventDao(Database.getInstance().getConnection());
+                    EventDao eventDao = EventDaoFactory.createEventDao();
+                    CalendarService service = new CalendarService(eventDao);
+                    Pet pet = new Pet("Mochi");
+                    PetView view = new PetView();
 
-                    new PetView(eventDao).setVisible(true);
+                    // The controller connects the three parts together.
+                    new PetCalendarController(view, pet, service);
+
+                    view.setVisible(true);
                 } catch (DataAccessException e) {
                     // The window cannot be opened without the database, so the
                     // user is told what is wrong instead of the program
