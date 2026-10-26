@@ -1,0 +1,106 @@
+
+| Lecture   | Topic           | Project result                                       |
+| --------- | --------------- | ---------------------------------------------------- |
+| 6         | GUI             | Window, layout, buttons, dialogs                     |
+| 7         | Git             | `gui` branch, versions and rollback                  |
+| 8         | JDBC            | Optional database calendar source, add-event feature |
+| 9         | Design Patterns | MVC and Observer refactor, working GUI               |
+| 10A / 10B | V&V and JUnit   | Model tests and manual GUI test log                  |
+| 11A       | Code Smells     | Cleanup, constants, no console prints                |
+| 12        | Summary         | Final checklist, merge and tag                       |
+### Stage 1: Lecture 6, GUI (build the window)
+
+**Concepts used:** `JFrame`, `JPanel`, `BorderLayout`, `GridLayout`, `FlowLayout`, `JLabel`, `JTextArea` in a `JScrollPane`, `JButton`, `ActionListener`, `JOptionPane`.
+
+**What to do in the project**
+
+- Create `PetView extends JFrame`. Put the speech and date labels in a `GridLayout` panel at the top, the events `JTextArea` (scrollable) in the centre, and Wake / Back / Today / Next buttons in a `FlowLayout` panel at the bottom.
+- Replace the commands `next`, `back`, `reset` and `quit` with buttons. The close button replaces `quit`, via `EXIT_ON_CLOSE`.
+- Replace the name and URL prompts with `JOptionPane.showInputDialog`.
+- Optional: add a `paintComponent` panel that draws the pet’s picture.
+
+**Milestone:** the window opens and the buttons show hard-coded text. The logic is not connected yet.
+
+### Stage 2: Lecture 7, Version Control and Git
+
+**Concepts used:** commits, branches, merging, Git in NetBeans.
+
+**What to do in the project**
+
+- Commit your working CUI first, tagged something like `v1.0.0`, as a rollback point.
+- Make a `gui` branch, since this is a major change under the lecture’s major/minor/revision scheme (say `v2.0.0`).
+- Commit at each stage here, with messages like “Add PetView layout” or “Refactor Pet to model”.
+- Merge into `main` only when the GUI works.
+
+**Milestone:** your CUI is safe on `main`, and you can compare the CUI and GUI versions.
+
+### Stage 3: Lecture 8, JDBC (optional persistence)
+
+**Concepts used:** embedded Derby, `Connection`, `Statement` / `PreparedStatement`, `ResultSet`, and Tutorial 8’s “create table if not exists” check using `DatabaseMetaData`.
+
+**What to do in the project**
+
+- Add a `DatabaseCalendarSource implements CalendarSource` alongside `LocalFileCalendarSource`. Nothing else changes, because `Pet` only knows the interface.
+- Store events and the pet’s name in tables, and add an “Add event” button with `JTextField` inputs. This gives the GUI a feature the CUI didn’t have.
+- Keep the connection in one class.
+- The lecture notes that plain JDBC makes MVC hard. Keep all SQL out of the view and the controller.
+
+**Milestone:** events and the pet’s name survive restarts. Skip this stage if your assignment doesn’t need a database.
+
+### Stage 4: Lecture 9, Design Patterns (MVC and Observer: the core refactor)
+
+**Concepts used:** Model-View-Controller, Observer, Singleton (for the DB connection if you added one), Factory (optionally, to choose a calendar source).
+
+**What to do in the project**
+
+- Strip all I/O out of `Pet`. Give it event-style methods (`wake()`, `next()`, `back()`, `reset()`, `checkIdle()`) and a getter for each thing the view shows.
+- Add a `PetListener` interface (the Observer). `Pet` calls `petChanged()` and `PetView` redraws itself.
+- Add `PetController`, which wires button clicks to pet methods and runs a `javax.swing.Timer` in place of `readLineWithTimeout` and `Thread.sleep`.
+- `Main` becomes setup only: create the source, pet, view and controller inside `SwingUtilities.invokeLater`.
+- Delete `ConsoleView`, or keep it as a separate console driver.
+
+**Milestone:** a working, fully connected GUI whose behaviour matches the CUI. The model knows nothing about the view, as the lecture requires.
+
+### Stage 5: Lectures 10A and 10B, Verification, Validation and JUnit
+
+**Concepts used:** faults vs failures, verification (“building it right”) vs validation (“building the right thing”), unit vs system and usability testing, pass/fail/error verdicts, `@Test` and `assertEquals`.
+
+**What to do in the project**
+
+- **Unit tests (verification).** The model has no UI now, so test it directly:
+    - `wake()` changes `SLEEPING` to `AWAKE`.
+    - `next()` and `back()` change the date by one day.
+    - `next()` while asleep does nothing.
+    - `reset()` returns to today.
+    - `checkIdle()` sleeps the pet after the timeout. Make the timeout injectable so the test doesn’t need to wait 15 seconds.
+- **Calendar tests:** valid line, malformed line, blank line, missing location, events sorted by time, and a date with no events.
+- **System and usability testing (validation).** Walk through the GUI by hand: are the buttons disabled when they should be, does the window freeze, is a date with no events shown clearly? Ask someone else to try it.
+- Write down failures you find and which of these categories they fall under.
+
+**Milestone:** a JUnit suite that passes, plus a short manual test log.
+
+### Stage 6: Lecture 11A, Good Programs and Code Smells
+
+**Concepts used:** readability, modifiability, testability, bloaters, OO abusers, change preventers, coupling and cohesion.
+
+**What to do in the project**
+
+- Check for a bloater: the old `Pet` was large, and splitting it into model, view and controller fixes that.
+- Look for duplication in the GUI, such as the four near-identical button handlers. A helper or the lambda shorthand removes it.
+- Look for magic numbers like `15_000` and `500`, and move them into named constants.
+- Remove `System.out` from the calendar classes and report warnings through a list or exception, so changing the UI doesn’t mean editing the model (a change-preventer smell).
+- Add `eventsByDate.clear()` at the start of `loadLines`, so re-importing a calendar doesn’t duplicate events.
+- Check coupling: the view should depend on the model only through getters, and `Pet` should depend only on `CalendarSource`.
+
+**Milestone:** a cleaner codebase that is easy to explain and extend, and still passes its tests.
+
+### Stage 7: Lecture 12, Summary (final check)
+
+This lecture reviews everything, so use it as a checklist for the finished GUI:
+
+- **OO concepts:** encapsulation (immutable `CalendarEvent`), abstraction (`CalendarSource`), inheritance (`AbstractCalendarSource`), polymorphism (swapping sources).
+- **SOLID:** single responsibility (model, view and controller each have one job), open/closed and dependency inversion (new sources without touching `Pet`).
+- **Multi-threading:** the idle timer runs on the Swing `Timer` rather than a sleeping loop.
+- **GUI, patterns, testing, smells, database, Git:** each is covered by the stages above.
+
+**Milestone:** merge `gui` into `main`, tag it `v2.0.0`, and run the whole app and test suite once more.
