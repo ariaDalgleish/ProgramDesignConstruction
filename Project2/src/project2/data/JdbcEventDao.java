@@ -17,9 +17,7 @@ import project2.model.Event;
 /**
  * @author aria
  *
- * The EventDao that talks to the embedded Derby database. All the SQL of the
- * program is in this class, so that nobody above it has to know that the
- * events are kept in a database.
+ * The EventDao that talks to the embedded Derby database. 
  *
  * Every statement is a PreparedStatement, so the values that come from the
  * user are put into the statement as values and cannot change the SQL
@@ -102,7 +100,7 @@ public class JdbcEventDao implements EventDao {
     }
 
     /**
-     * How many events are in the table.
+     * How many events are in the table
      */
     @Override
     public int countAll() throws DataAccessException {
@@ -139,9 +137,7 @@ public class JdbcEventDao implements EventDao {
     }
 
     /**
-     * Closes a result set or a statement. Nothing is done if closing goes
-     * wrong, because the work is finished already and there is nothing that
-     * can be done about it.
+     * Closes a result set or a statement.
      */
     private void close(AutoCloseable thing) {
         if (thing == null) {
@@ -151,7 +147,6 @@ public class JdbcEventDao implements EventDao {
         try {
             thing.close();
         } catch (Exception e) {
-            // There is nothing to do here.
         }
     }
 }

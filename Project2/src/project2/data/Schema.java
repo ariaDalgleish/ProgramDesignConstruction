@@ -15,10 +15,7 @@ import java.time.LocalTime;
  *
  * Makes the table of the calendar database and puts a few example events in
  * it the first time the database is used.
- *
- * Derby has no "CREATE TABLE IF NOT EXISTS", so the database is asked first
- * whether the table is already there. That is the same trick that was used
- * for the tutorial databases in the lectures.
+ * Using the database tutorial .
  */
 public final class Schema {
 

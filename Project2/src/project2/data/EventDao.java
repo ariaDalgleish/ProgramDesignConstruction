@@ -9,10 +9,6 @@ import project2.model.Event;
  * @author aria
  *
  * The place where the events are kept (the DAO pattern).
- *
- * The rest of the program only ever knows this interface, so the events
- * could be kept somewhere else - in a file, or in a different database -
- * without changing anything that uses them.
  */
 public interface EventDao {
 

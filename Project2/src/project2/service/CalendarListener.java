@@ -11,6 +11,5 @@ package project2.service;
  */
 public interface CalendarListener {
 
-    /** Called every time the events in the database change. */
     void eventsChanged();
 }

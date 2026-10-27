@@ -8,29 +8,23 @@ import java.util.Objects;
 /**
  * @author aria
  *
- * Represents a single scheduled event on a given date. It is the same idea
- * as the CalendarEvent class in Assignment 1, with a database id added so
+ * Represents a single scheduled event on a given date. Database id added so
  * that the program can find the event again later.
  *
  * Immutable by design - the fields are private and final and there are no
- * setters, so an event that the window is showing cannot change underneath
- * it. This is the encapsulation example for this class.
+ * setters, Encapsulation example.
  *
  * The events are sorted with a separate comparator (BY_DATE_AND_TIME)
  * instead of by implementing Comparable. Two events can have the same date
  * and the same time, and a compareTo based on the sort key would call them
- * equal while equals correctly calls them different. Keeping the two apart
- * avoids that problem.
+ * equal while equals correctly calls them different.
  */
 public final class Event {
 
-    /** The id used for an event that has not been saved to the database yet. */
     public static final int UNSAVED_ID = 0;
 
     /**
      * Sorts events by date, then by start time, then by title.
-     * It is written out by hand as an anonymous class so that it is easy
-     * to read.
      */
     public static final Comparator<Event> BY_DATE_AND_TIME = new Comparator<Event>() {
         @Override
@@ -56,10 +50,10 @@ public final class Event {
     /**
      * Makes a new event that has not been saved to the database yet.
      *
-     * @param date     the day the event happens on
-     * @param time     the time the event starts
-     * @param title    a short description of the event
-     * @param location where the event happens, may be empty
+     * @param date     
+     * @param time     
+     * @param title   
+     * @param location 
      */
     public Event(LocalDate date, LocalTime time, String title, String location) {
         this(UNSAVED_ID, date, time, title, location);
@@ -68,11 +62,11 @@ public final class Event {
     /**
      * Makes an event that already has a database id.
      *
-     * @param id       the id the database gave the event, or UNSAVED_ID
-     * @param date     the day the event happens on
-     * @param time     the time the event starts
+     * @param id       
+     * @param date     
+     * @param time     
      * @param title    a short description of the event
-     * @param location where the event happens, may be empty
+     * @param location may be empty
      */
     public Event(int id, LocalDate date, LocalTime time, String title, String location) {
         if (date == null) {
@@ -121,13 +115,6 @@ public final class Event {
         return id != UNSAVED_ID;
     }
 
-    /**
-     * Makes a copy of this event with the given database id.
-     * This is used when the database gives a new event its id.
-     *
-     * @param id the id the database gave the event
-     * @return the same event, but now saved
-     */
     public Event withId(int id) {
         return new Event(id, date, time, title, location);
     }
@@ -150,10 +137,6 @@ public final class Event {
         return Objects.hash(id, date, time, title, location);
     }
 
-    /**
-     * The event as it is written under the date - the same format as the
-     * console version in Assignment 1.
-     */
     @Override
     public String toString() {
         String line = String.format("%s | %s", time, title);

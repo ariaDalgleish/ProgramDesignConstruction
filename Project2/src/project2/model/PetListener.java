@@ -11,6 +11,5 @@ package project2.model;
  */
 public interface PetListener {
 
-    /** Called every time the pet changes state. */
     void stateChanged(PetState newState);
 }

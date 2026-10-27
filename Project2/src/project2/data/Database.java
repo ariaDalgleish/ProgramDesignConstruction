@@ -17,10 +17,7 @@ import java.sql.SQLException;
  * An embedded Derby database only allows one connection to a database while
  * the program is running, so the connection is made once, here, and everybody
  * else asks this class for it with getInstance().
- *
- * Derby also wants to be told where to keep its files before it starts up,
- * so the derby.system.home property is set before the first connection is
- * opened. The folder is "db" inside the folder the program is started from.
+ * 
  */
 public final class Database {
 
@@ -31,15 +28,13 @@ public final class Database {
     private static final String HOME_FOLDER = "db";
     private static final String HOME_PROPERTY = "derby.system.home";
 
-    // The one and only instance of this class. It is empty until somebody
-    // asks for it for the first time.
+    // E mpty until somebody asks for it for the first time.
     private static Database instance;
 
     private final Connection connection;
 
     /**
-     * Opens the connection and makes sure that the table of the calendar is
-     * there.
+     * Opens the connection and makes sure that the table of the calendar is there
      */
     private Database() throws DataAccessException {
         makeTheDatabaseFolder();
@@ -60,8 +55,7 @@ public final class Database {
     }
 
     /**
-     * The one and only instance of this class. The instance is made the first
-     * time it is asked for, and not before.
+     * Instance is made the first time it is asked for, and not before.
      */
     public static synchronized Database getInstance() throws DataAccessException {
         if (instance == null) {
@@ -71,12 +65,12 @@ public final class Database {
         return instance;
     }
 
-    /** The connection to the calendar database. */
+    /** Connection to the calendar database. */
     public Connection getConnection() {
         return connection;
     }
 
-    /** Closes the connection to the calendar database. */
+    /** Closes the connection */
     public void close() {
         try {
             connection.close();

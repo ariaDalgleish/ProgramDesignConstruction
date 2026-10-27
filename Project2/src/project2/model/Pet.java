@@ -7,12 +7,7 @@ import java.util.List;
 /**
  * @author aria
  *
- * The pet itself. It has three states - SLEEPING, AWAKE and ACTIVE - and it
- * keeps the day that is being looked at.
- *
- * The pet knows nothing about the window. When something changes it tells
- * the listeners that registered with it (the Observer pattern) and the
- * window decides what to do about it.
+ * The pet itself. It has three states - SLEEPING, AWAKE and ACTIVE.
  *
  * The idle timer is measured from the last time the pet was used, so a
  * timeout can be given in the constructor. The tests use a short one.
@@ -35,7 +30,7 @@ public class Pet {
     }
 
     /**
-     * @param name              the name of the pet
+     * @param name              
      * @param idleTimeoutMillis how long the pet waits before it falls asleep
      */
     public Pet(String name, long idleTimeoutMillis) {
@@ -55,7 +50,6 @@ public class Pet {
         return state;
     }
 
-    /** The day that is being looked at. */
     public LocalDate getCurrentDate() {
         return currentDate;
     }
@@ -73,9 +67,6 @@ public class Pet {
     }
 
     /**
-     * Moves the calendar to the next day. Nothing happens while the pet is
-     * asleep, the same as in the console version.
-     *
      * @return true if the calendar was moved
      */
     public boolean next() {
@@ -83,9 +74,6 @@ public class Pet {
     }
 
     /**
-     * Moves the calendar to the day before. Nothing happens while the pet is
-     * asleep.
-     *
      * @return true if the calendar was moved
      */
     public boolean back() {
@@ -93,9 +81,6 @@ public class Pet {
     }
 
     /**
-     * Moves the calendar back to today. Nothing happens while the pet is
-     * asleep.
-     *
      * @return true if the calendar was moved
      */
     public boolean reset() {
@@ -125,14 +110,12 @@ public class Pet {
         return idleTimeoutMillis;
     }
 
-    /** Registers a listener that is told about every state change. */
     public void addListener(PetListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
-    /** Removes a listener, so it is not told anything any more. */
     public void removeListener(PetListener listener) {
         listeners.remove(listener);
     }
@@ -147,16 +130,10 @@ public class Pet {
      * waking the pet up later always starts from the current day.
      */
     public void sleep() {
-        // The day is set first, so that anybody told about the change
-        // already sees the new day and not the one that has just been left.
         currentDate = LocalDate.now();
         setState(PetState.SLEEPING);
     }
 
-    /**
-     * The pet has been used. A sleeping pet wakes up and the idle timer
-     * starts again.
-     */
     public void interact() {
         lastInteractionTime = System.currentTimeMillis();
         if (state == PetState.SLEEPING) {
@@ -176,9 +153,6 @@ public class Pet {
     }
 
     /**
-     * Checks whether the pet has been left alone for too long. If it has,
-     * the pet falls asleep.
-     *
      * @return true if the pet has just fallen asleep
      */
     public boolean checkIdleTimeout() {
@@ -204,8 +178,6 @@ public class Pet {
         }
         state = newState;
 
-        // A copy of the list is used, because a listener is allowed to
-        // remove itself while it is being told.
         List<PetListener> copy = new ArrayList<PetListener>(listeners);
         for (PetListener listener : copy) {
             listener.stateChanged(newState);

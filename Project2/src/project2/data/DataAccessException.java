@@ -11,8 +11,7 @@ package project2.data;
  * one exception that means something: the calendar could not be used.
  *
  * Deliberately a checked exception (extends Exception, not
- * RuntimeException), just like CalendarImportException in Assignment 1, so
- * that any method that can fail because of the database is forced by the
+ * RuntimeException), any method that can fail because of the database is forced by the
  * compiler to either handle it or declare it. That way "the database is not
  * working" is an explicit, visible part of the method signatures instead of
  * something that could quietly slip through.

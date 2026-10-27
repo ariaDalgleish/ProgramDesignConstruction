@@ -6,9 +6,7 @@ import java.util.List;
 /**
  * @author aria
  *
- * Thrown when an event is not valid. It carries every problem that was
- * found, so that the user can be told about all of them at once instead of
- * one at a time.
+ * Thrown when an event is not valid. 
  */
 public class ValidationException extends Exception {
 
@@ -23,12 +21,10 @@ public class ValidationException extends Exception {
         this.problems = new ArrayList<String>(problems);
     }
 
-    /** The things that are wrong with the event. */
     public List<String> getProblems() {
         return new ArrayList<String>(problems);
     }
 
-    /** The message of the exception is the first problem. */
     private static String firstProblem(List<String> problems) {
         if (problems.isEmpty()) {
             return "The event is not valid.";

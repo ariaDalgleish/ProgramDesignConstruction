@@ -12,12 +12,10 @@ import project2.model.Event;
 /**
  * @author aria
  *
- * The business rules of the calendar. The window never talks to the database
- * itself - it asks this class, and this class asks the data layer.
+ * The business rules of the calendar.
  *
- * This class also checks that an event makes sense before it is saved, and
- * it tells its listeners when the events change (the Observer pattern), so
- * that the window can show the new events without being asked.
+ * Checks that an event makes sense before it is saved
+ * Tells its listeners when the events change (the Observer pattern)
  */
 public class CalendarService {
 
@@ -31,12 +29,11 @@ public class CalendarService {
         this.eventDao = eventDao;
     }
 
-    /** The events of the given day, earliest first. */
     public List<Event> eventsOn(LocalDate date) throws DataAccessException {
         return eventDao.findByDate(date);
     }
 
-    /** How many events are stored in the database. */
+    /** Count events stored in the database. */
     public int countEvents() throws DataAccessException {
         return eventDao.countAll();
     }
@@ -55,21 +52,19 @@ public class CalendarService {
         return saved;
     }
 
-    /** Registers a listener that is told when the events change. */
     public void addListener(CalendarListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
-    /** Removes a listener, so it is not told anything any more. */
     public void removeListener(CalendarListener listener) {
         listeners.remove(listener);
     }
 
     /**
-     * Checks that the event is sensible. Every problem that is found is
-     * collected, so the user is told about all of them at once.
+     * Checks that the event is sensible. 
+     * Every problem that is found is collected
      */
     private Event buildEvent(LocalDate date, LocalTime time, String title, String location)
             throws ValidationException {
@@ -103,8 +98,6 @@ public class CalendarService {
 
     /** Tells the listeners that the events have changed. */
     private void fireEventsChanged() {
-        // A copy of the list is used, because a listener is allowed to
-        // remove itself while it is being told.
         List<CalendarListener> copy = new ArrayList<CalendarListener>(listeners);
         for (CalendarListener listener : copy) {
             listener.eventsChanged();

@@ -27,8 +27,8 @@ import project2.service.ValidationException;
  * The small window where a new event is typed in. The date and the time are
  * typed as text, for example 2026-10-26 and 09:30.
  *
- * The window does not check the event itself. It hands the typing to the
- * service, and if the service finds a problem the window stays open and says
+ * The window hands the typing to the service 
+ * If the service finds a problem the window stays open and says
  * what is wrong, so the user does not lose what they have typed.
  */
 public class AddEventDialog extends JDialog {
@@ -43,13 +43,13 @@ public class AddEventDialog extends JDialog {
     private static final int DIALOG_WIDTH = 340;
     private static final int DIALOG_GAP = 8;
 
-    // The size of the boxes. The date and the time are short, the title and
-    // the place are longer.
+    // The size of the boxes. 
+    //The date and the time are short, the title and the place are longer.
     private static final int SHORT_FIELD_COLUMNS = 12;
     private static final int LONG_FIELD_COLUMNS = 20;
 
-    // The form has one row for each part of the event, with a label and a
-    // box side by side.
+    // The form has one row for each part of the event, 
+    // Label and a box side by side.
     private static final int FORM_ROWS = 5;
     private static final int FORM_COLUMNS = 2;
     private static final int FORM_GAP_X = 8;
@@ -118,8 +118,7 @@ public class AddEventDialog extends JDialog {
     }
 
     /**
-     * Reads what was typed and asks the service to save it. The window only
-     * closes when the event has really been saved.
+     * Reads what was typed and asks the service to save it. 
      */
     private void addTheEvent() {
         LocalDate date;

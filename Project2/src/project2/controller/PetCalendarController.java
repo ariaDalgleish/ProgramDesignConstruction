@@ -21,12 +21,11 @@ import project2.view.PetView;
 /**
  * @author aria
  *
- * The controller. It connects the window to the pet and to the service: the
- * clicks on the buttons become calls on the pet, and the changes of the pet
- * and of the events become updates of the window.
+ * Connects the window to the pet and service
+ * buttons call on the pet, changes of pet and events updates the window.
  *
- * This is the only class that knows about all three parts of the program,
- * which is what the Model-View-Controller pattern is about.
+ * This is the only class that knows of all three parts of the program,
+ * the Model-View-Controller pattern.
  */
 public class PetCalendarController implements CalendarListener, PetListener {
 
@@ -60,23 +59,19 @@ public class PetCalendarController implements CalendarListener, PetListener {
         showTheDay();
     }
 
-    /** Called when the events in the database change. */
+    // Called when the events in the database change.
     @Override
     public void eventsChanged() {
         showTheDay();
     }
 
-    /** Called when the pet changes state. */
+    // Called when the pet changes state. 
     @Override
     public void stateChanged(PetState newState) {
         view.showThePetState(newState);
     }
 
-    /**
-     * What each of the buttons does. The lambda shorthand is used here, so
-     * that the five buttons do not all look the same: it says the same thing
-     * as the long form of a listener, it is just shorter.
-     */
+    // What each of the buttons does.
     private void addButtonListeners() {
         view.getWakeButton().addActionListener(event -> {
             pet.wake();
@@ -92,11 +87,7 @@ public class PetCalendarController implements CalendarListener, PetListener {
         view.getAddButton().addActionListener(event -> openTheAddEventWindow());
     }
 
-    /**
-     * Clicking the pet wakes it up. This one listener stays in the long
-     * form, because the mouse listener has several methods in it and the
-     * lambda shorthand can only be used with a listener of one method.
-     */
+    // Clicking the pet wakes it up.
     private void addPictureListener() {
         view.getPetPicture().addMouseListener(new MouseAdapter() {
             @Override
@@ -108,8 +99,7 @@ public class PetCalendarController implements CalendarListener, PetListener {
     }
 
     /**
-     * Makes the timer that watches the idle timer of the pet. The timer
-     * runs on the Swing thread, so there is no sleeping loop anywhere.
+     * Timer runs on the Swing thread, so there is no sleeping loop anywhere.
      */
     private Timer makeTheTimer() {
         Timer newTimer = new Timer(TIMER_INTERVAL_MILLIS, event -> {
@@ -124,10 +114,7 @@ public class PetCalendarController implements CalendarListener, PetListener {
     }
 
     /**
-     * Moves the calendar, if the pet lets it. The pet says whether it did
-     * anything, so the rule "the calendar does not move while the pet is
-     * asleep" is kept in one place and the three buttons that move the
-     * calendar do not each need their own copy of it.
+     * Moves the calendar, if the pet lets it. 
      *
      * @param move what is to be done: the day before, today or the day after
      */
