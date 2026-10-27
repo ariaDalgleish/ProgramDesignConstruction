@@ -56,6 +56,7 @@ public class PetCalendarController implements CalendarListener, PetListener {
         addPictureListener();
 
         timer.start();
+        view.showThePetName(pet.getName());
         showTheDay();
     }
 
@@ -77,6 +78,8 @@ public class PetCalendarController implements CalendarListener, PetListener {
             pet.wake();
             showTheDay();
         });
+        
+        view.getRenameButton().addActionListener(event -> renameThePet());
 
         view.getBackButton().addActionListener(event -> moveTheDay(pet::back));
 
@@ -111,6 +114,24 @@ public class PetCalendarController implements CalendarListener, PetListener {
         });
 
         return newTimer;
+    }
+    
+    /** Asks for a new name and gives it to the pet. */
+    private void renameThePet() {
+        String newName = view.askForPetName("Rename pet", pet.getName());
+
+        if (newName == null) {
+            return; // Cancel was pressed, so nothing changes.
+        }
+
+        if (!pet.rename(newName)) {
+            view.showTheStatus("The name cannot be empty.");
+            return;
+        }
+
+        view.showThePetName(pet.getName());
+        view.showThePetState(pet.getState());
+        view.showTheStatus("The pet is now called " + pet.getName() + ".");
     }
 
     /**

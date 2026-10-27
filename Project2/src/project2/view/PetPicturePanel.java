@@ -19,19 +19,12 @@ import project2.model.PetState;
 /**
  * @author aria
  *
- * Shows the pet as a picture. There is one picture for every state of the
- * pet, and the name of the state says the name of the file: SLEEPING is shown
- * by sleeping.png, AWAKE by awake.png and ACTIVE by active.png.
- *
  * The pictures are read from the class path once, when the panel is made, and
- * they are kept in an EnumMap. After that they are only drawn, and the name
- * of the pet is written under the picture.
+ * they are kept in an EnumMap. 
+ * Name of the pet is written under the picture.
  *
  * Swing calls paintComponent every time the window has to be drawn again, so all of
  * the drawing happens inside that method.
- *
- * Clicking the picture is how the user wakes the pet up. The click is dealt
- * with by the controller.
  */
 public class PetPicturePanel extends JPanel {
 
@@ -54,7 +47,7 @@ public class PetPicturePanel extends JPanel {
     private PetState state = PetState.SLEEPING;
 
     /** The name that is written under the picture. */
-    private final String petName;
+    private String petName;
 
     /**
      * @param petName the name of the pet, written under the picture
@@ -115,6 +108,16 @@ public class PetPicturePanel extends JPanel {
      */
     public void setState(PetState state) {
         this.state = state;
+        repaint();
+    }
+    
+    /**
+    * Changes the name that is written under the picture.
+    *
+    * @param petName the new name of the pet
+    */
+    public void setPetName(String petName) {
+        this.petName = petName == null ? "" : petName;
         repaint();
     }
 

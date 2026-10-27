@@ -47,18 +47,20 @@ public class PetView extends JFrame {
     private final JLabel statusLabel = new JLabel(" ");
     private final JTextArea eventsArea = new JTextArea();
     private final JButton wakeButton = new JButton("Wake");
+    private final JButton addButton = new JButton("Add event");
+    private final JButton renameButton = new JButton("Rename pet");
     private final JButton backButton = new JButton("Back");
     private final JButton todayButton = new JButton("Today");
     private final JButton nextButton = new JButton("Next");
-    private final JButton addButton = new JButton("Add event");
     private final PetPicturePanel petPicture;
-
+    private String petName = "Pet";
     /**
      * @param petName the name of the pet, which is written under its picture
      */
     public PetView(String petName) {
         super("Pet Calendar");
 
+        this.petName = petName;
         this.petPicture = new PetPicturePanel(petName);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -102,6 +104,7 @@ public class PetView extends JFrame {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttons.add(wakeButton);
+        buttons.add(renameButton);
         buttons.add(backButton);
         buttons.add(todayButton);
         buttons.add(nextButton);
@@ -116,6 +119,10 @@ public class PetView extends JFrame {
 
     public JButton getWakeButton() {
         return wakeButton;
+    }
+    
+    public JButton getRenameButton() {
+        return renameButton;
     }
 
     public JButton getBackButton() {
@@ -158,14 +165,14 @@ public class PetView extends JFrame {
         eventsArea.setText(text.toString());
     }
 
-    /** Shows what the pet is doing. */
+    //** Shows what the pet is doing. */
     public void showThePetState(PetState state) {
         petPicture.setState(state);
 
         switch (state) {
-            case SLEEPING -> speechLabel.setText("\"zzz...\" Click me to wake me up.");
-            case AWAKE -> speechLabel.setText("\"Mmmrm...\" What is on today?");
-            case ACTIVE -> speechLabel.setText("\"Flip!\" Hmm");
+            case SLEEPING -> speechLabel.setText(petName + ": \"zzz...\" Click me to wake me up.");
+            case AWAKE -> speechLabel.setText(petName + ": \"Mmmrm...\" What is on today?");
+            case ACTIVE -> speechLabel.setText(petName + ": \"Flip!\" Hmm");
         }
     }
 
@@ -178,5 +185,24 @@ public class PetView extends JFrame {
     public void showTheProblem(String message) {
         JOptionPane.showMessageDialog(this, message, "Pet Calendar",
                 JOptionPane.WARNING_MESSAGE);
+    }
+    
+    /** Shows the pet's name in the title of the window and in its speech. */
+    public void showThePetName(String name) {
+        petName = name;
+        setTitle("Pet Calendar - " + name);
+        petPicture.setPetName(name);
+    }
+
+    /**
+     * Asks the user to type a name for the pet.
+     *
+     * @param title   the title of the pop-up
+     * @param current the name that is in the box to begin with
+     * @return the text typed, or null if the user pressed Cancel
+     */
+    public String askForPetName(String title, String current) {
+        return (String) JOptionPane.showInputDialog(this, "What is your pet's name?",
+                title, JOptionPane.QUESTION_MESSAGE, null, null, current);
     }
 }

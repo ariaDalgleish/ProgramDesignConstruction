@@ -7,18 +7,17 @@ import java.util.List;
 /**
  * @author aria
  *
- * The pet itself. It has three states - SLEEPING, AWAKE and ACTIVE.
- *
  * The idle timer is measured from the last time the pet was used, so a
  * timeout can be given in the constructor. The tests use a short one.
  */
 public class Pet {
 
-    private static final long DEFAULT_IDLE_TIMEOUT_MILLIS = 60_000L; // one minute
+    private static final long DEFAULT_IDLE_TIMEOUT_MILLIS = 30_000L; 
     private static final String DEFAULT_NAME = "Your pet";
+    private static final int MAX_NAME_LENGTH = 20;
 
     private final List<PetListener> listeners = new ArrayList<PetListener>();
-    private final String name;
+    private String name;
     private final long idleTimeoutMillis;
 
     private PetState state = PetState.SLEEPING;
@@ -34,20 +33,42 @@ public class Pet {
      * @param idleTimeoutMillis how long the pet waits before it falls asleep
      */
     public Pet(String name, long idleTimeoutMillis) {
-        if (name == null || name.trim().isEmpty()) {
-            this.name = DEFAULT_NAME;
-        } else {
-            this.name = name.trim();
-        }
+        this.name = cleanTheName(name);
         this.idleTimeoutMillis = idleTimeoutMillis;
     }
 
     public String getName() {
-        return name;
+         return name;
     }
 
     public PetState getState() {
-        return state;
+       return state;
+    }
+    /**
+    * Gives the pet a new name.
+    *
+    * @param newName the name the user typed
+    * @return false if the name is empty, so nothing changed
+    */
+    
+    public boolean rename(String newName) {
+        if (newName == null || newName.trim().isEmpty()) {
+            return false;
+        }   
+        name = cleanTheName(newName);
+        return true;
+    }
+
+    /** Trims the name and cuts it down to the longest name allowed. */
+    private static String cleanTheName(String rawName) {
+        if (rawName == null || rawName.trim().isEmpty()) {
+            return DEFAULT_NAME;
+        }
+        String clean = rawName.trim();
+        if (clean.length() > MAX_NAME_LENGTH) {
+            clean = clean.substring(0, MAX_NAME_LENGTH);
+        }
+        return clean;
     }
 
     public LocalDate getCurrentDate() {
@@ -88,8 +109,7 @@ public class Pet {
     }
 
     /**
-     * Moves the calendar to a day. Nothing happens while the pet is asleep,
-     * and the pet is busy for a moment while it moves.
+     * Moves the calendar to a day. 
      *
      * @param newDate the day to move to
      * @return true if the calendar was moved

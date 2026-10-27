@@ -25,6 +25,7 @@ import project2.view.PetView;
  */
 public class Project2 {
 
+    private static final String FALLBACK_NAME = "Mochi";
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             @Override
@@ -34,7 +35,7 @@ public class Project2 {
                 try {
                     EventDao eventDao = EventDaoFactory.createEventDao();
                     CalendarService service = new CalendarService(eventDao);
-                    Pet pet = new Pet("Mochi", 8_000); // temp idle time!!!
+                    Pet pet = new Pet(chooseTheName());
                     PetView view = new PetView(pet.getName());
 
                     // The controller connects the three parts together.
@@ -61,5 +62,22 @@ public class Project2 {
         } catch (Exception e) {
             // There is nothing to do here - default.
         }
+    }
+    /**
+    * Asks the user for the pet's name before the window opens. An empty name
+    * is asked for again. If the user presses Cancel the pet gets a default name.
+    */
+    private static String chooseTheName() {
+        String name = JOptionPane.showInputDialog(null,
+                "Can you give me a name for your pet? "
+                , "Type any name you wish and hit 'Enter' ... ", JOptionPane.QUESTION_MESSAGE);
+
+        while (name != null && name.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Looks like you didn't type anything!");
+            name = JOptionPane.showInputDialog(null,
+                    "What is your pet's name?", "Name your pet and  hit 'Enter'", JOptionPane.QUESTION_MESSAGE);
+        }
+
+        return (name == null) ? FALLBACK_NAME : name;
     }
 }
