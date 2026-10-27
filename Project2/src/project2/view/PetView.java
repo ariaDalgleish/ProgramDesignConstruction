@@ -171,8 +171,8 @@ public class PetView extends JFrame {
 
         switch (state) {
             case SLEEPING -> speechLabel.setText(petName + ": \"zzz...\" Click me to wake me up.");
-            case AWAKE -> speechLabel.setText(petName + ": \"Mmmrm...\" What is on today?");
-            case ACTIVE -> speechLabel.setText(petName + ": \"Flip!\" Hmm");
+            case AWAKE -> speechLabel.setText(petName + ": \"Hey! \" What's happening today?");
+            case ACTIVE -> speechLabel.setText(petName + ": \"Flip!");
         }
     }
 

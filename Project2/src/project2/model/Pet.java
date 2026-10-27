@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class Pet {
 
-    private static final long DEFAULT_IDLE_TIMEOUT_MILLIS = 30_000L; 
+    private static final long DEFAULT_IDLE_TIMEOUT_MILLIS = 10_000L; 
     private static final String DEFAULT_NAME = "Your pet";
     private static final int MAX_NAME_LENGTH = 20;
 
