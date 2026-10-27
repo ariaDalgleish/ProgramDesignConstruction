@@ -1,16 +1,32 @@
 package project2.view;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.EnumMap;
+import java.util.Locale;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+
+import project2.model.PetState;
 
 /**
  * @author aria
  *
- * Draw pet with Java2D. 
+ * Shows the pet as a picture. There is one picture for every state of the
+ * pet, and the name of the state says the name of the file: SLEEPING is shown
+ * by sleeping.png, AWAKE by awake.png and ACTIVE by active.png.
+ *
+ * The pictures are read from the class path once, when the panel is made, and
+ * they are kept in an EnumMap. After that they are only drawn, and the name
+ * of the pet is written under the picture.
+ *
  * Swing calls paintComponent every time the window has to be drawn again, so all of
  * the drawing happens inside that method.
  *
@@ -21,30 +37,84 @@ public class PetPicturePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int BODY_COLOUR_RED = 244;
-    private static final int BODY_COLOUR_GREEN = 193;
-    private static final int BODY_COLOUR_BLUE = 123;
-    private static final int EYE_SIZE = 8;
+    /** Where the pictures of the pet are on the class path. */
+    private static final String IMAGES_FOLDER = "/project2/images/";
+    private static final String IMAGE_EXTENSION = ".png";
 
-    // The space around the pet.
-    private static final int BODY_MARGIN = 20;
+    // The space around the picture and around the name.
+    private static final int MARGIN = 6;
 
-    // The left ear and the right ear are the same only left ear.
-    private static final int EAR_INSET = 10;      // how far the ear is in from the side of the head
-    private static final int EAR_WIDTH = 30;      // how wide the bottom of the ear is
-    private static final int EAR_TIP_INSET = 20;  // how far the point of the ear is from the side
-    private static final int EAR_BASE_OFFSET = 20; // how far down the head the bottom of the ear is
-    private static final int EAR_TIP_HEIGHT = 10;  // how far the point of the ear is above the head
+    // The size of the name under the picture.
+    private static final int NAME_FONT_SIZE = 14;
 
-    private boolean asleep = true;
+    /** The picture of every state of the pet. */
+    private final EnumMap<PetState, Image> pictures = new EnumMap<>(PetState.class);
 
-    public PetPicturePanel() {
+    /** The state the pet is in now. */
+    private PetState state = PetState.SLEEPING;
+
+    /** The name that is written under the picture. */
+    private final String petName;
+
+    /**
+     * @param petName the name of the pet, written under the picture
+     */
+    public PetPicturePanel(String petName) {
+        this.petName = petName == null ? "" : petName;
+
         setBackground(Color.WHITE);
+        setFont(new Font(Font.SANS_SERIF, Font.BOLD, NAME_FONT_SIZE));
+
+        loadThePictures();
     }
 
-    /** Whether the pet is asleep. A sleeping pet has its eyes closed. */
-    public void setAsleep(boolean asleep) {
-        this.asleep = asleep;
+    /**
+     * Reads the picture of every state of the pet from the class path. This
+     * is done once, when the panel is made, so that the pictures are ready
+     * whenever the window is drawn.
+     */
+    private void loadThePictures() {
+        for (PetState state : PetState.values()) {
+            pictures.put(state, readThePicture(state));
+        }
+    }
+
+    /**
+     * Reads one picture from the class path.
+     *
+     * @param state the state the picture belongs to
+     * @return the picture of that state
+     */
+    private Image readThePicture(PetState state) {
+        // Locale.ROOT is used so that the name of the file is the same in
+        // every country.
+        String path = IMAGES_FOLDER + state.name().toLowerCase(Locale.ROOT) + IMAGE_EXTENSION;
+
+        try (InputStream stream = PetPicturePanel.class.getResourceAsStream(path)) {
+            if (stream == null) {
+                throw new IllegalStateException("The picture " + path
+                        + " is not on the class path.");
+            }
+
+            Image picture = ImageIO.read(stream);
+            if (picture == null) {
+                throw new IllegalStateException("The picture " + path
+                        + " could not be read.");
+            }
+            return picture;
+        } catch (IOException e) {
+            throw new IllegalStateException("The picture " + path
+                    + " could not be read.", e);
+        }
+    }
+
+    /**
+     * Shows the picture of the given state of the pet.
+     *
+     * @param state the state the pet is in
+     */
+    public void setState(PetState state) {
+        this.state = state;
         repaint();
     }
 
@@ -57,59 +127,57 @@ public class PetPicturePanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-        drawPet(g2);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setFont(getFont());
+
+        // The name is under the picture, so the picture gets the room above it.
+        int nameHeight = g2.getFontMetrics().getHeight();
+        drawThePicture(g2, nameHeight);
+        drawTheName(g2);
+
         g2.dispose();
     }
 
-    /** Draws a round cat with two eyes and a smile. */
-    private void drawPet(Graphics2D g2) {
-        int width = getWidth();
-        int height = getHeight();
-
-        int bodySize = Math.min(width, height) - BODY_MARGIN;
-        int bodyX = (width - bodySize) / 2;
-        int bodyY = (height - bodySize) / 2;
-
-        // The ears.
-        g2.setColor(new Color(BODY_COLOUR_RED, BODY_COLOUR_GREEN, BODY_COLOUR_BLUE));
-        drawTheEars(g2, bodyX, bodyY, bodySize);
-
-        // The head.
-        g2.fillOval(bodyX, bodyY, bodySize, bodySize);
-
-        // The eyes.
-        g2.setColor(Color.BLACK);
-        int eyeY = bodyY + bodySize / 3;
-        if (asleep) {
-            // A sleeping pet has its eyes closed.
-            g2.drawArc(bodyX + bodySize / 4 - 2, eyeY, EYE_SIZE + 4, EYE_SIZE + 4, 200, 140);
-            g2.drawArc(bodyX + bodySize * 2 / 3 - 2, eyeY, EYE_SIZE + 4, EYE_SIZE + 4, 200, 140);
-        } else {
-            g2.fillOval(bodyX + bodySize / 4, eyeY, EYE_SIZE, EYE_SIZE);
-            g2.fillOval(bodyX + bodySize * 2 / 3, eyeY, EYE_SIZE, EYE_SIZE);
+    /**
+     * Draws the picture of the current state, as big as it fits. The picture
+     * is kept in its own shape, so it is not squashed.
+     *
+     * @param g2          where to draw
+     * @param nameHeight  the room the name needs under the picture
+     */
+    private void drawThePicture(Graphics2D g2, int nameHeight) {
+        Image picture = pictures.get(state);
+        if (picture == null) {
+            return;
         }
 
-        // The smile.
-        g2.drawArc(bodyX + bodySize / 3, bodyY + bodySize / 2,
-                bodySize / 3, bodySize / 4, 200, 140);
+        int areaWidth = getWidth() - 2 * MARGIN;
+        int areaHeight = getHeight() - 2 * MARGIN - nameHeight;
+        if (areaWidth <= 0 || areaHeight <= 0) {
+            return;
+        }
+
+        double scale = Math.min(
+                (double) areaWidth / picture.getWidth(null),
+                (double) areaHeight / picture.getHeight(null));
+
+        int width = (int) Math.round(picture.getWidth(null) * scale);
+        int height = (int) Math.round(picture.getHeight(null) * scale);
+
+        int x = MARGIN + (areaWidth - width) / 2;
+        int y = MARGIN + (areaHeight - height) / 2;
+        g2.drawImage(picture, x, y, width, height, null);
     }
 
-    /**
-     * Draws the two ears of the pet. The right ear is the left ear the other
-     * way round, so the numbers of the left ear are the numbers of the right
-     * one as well.
-     */
-    private void drawTheEars(Graphics2D g2, int bodyX, int bodyY, int bodySize) {
-        int leftCorner = bodyX + EAR_INSET;
-        int rightCorner = bodyX + bodySize - EAR_INSET - EAR_WIDTH;
-        int leftTip = bodyX + EAR_TIP_INSET;
-        int rightTip = bodyX + bodySize - EAR_TIP_INSET;
-        int bottom = bodyY + EAR_BASE_OFFSET;
-        int point = bodyY - EAR_TIP_HEIGHT;
+    /** Draws the name of the pet under the picture. */
+    private void drawTheName(Graphics2D g2) {
+        if (petName.isEmpty()) {
+            return;
+        }
 
-        g2.fillPolygon(new int[]{leftCorner, leftCorner + EAR_WIDTH, leftTip},
-                new int[]{bottom, bottom, point}, 3);
-        g2.fillPolygon(new int[]{rightCorner + EAR_WIDTH, rightCorner, rightTip},
-                new int[]{bottom, bottom, point}, 3);
+        int x = (getWidth() - g2.getFontMetrics().stringWidth(petName)) / 2;
+        int y = getHeight() - MARGIN - g2.getFontMetrics().getDescent();
+        g2.drawString(petName, x, y);
     }
 }

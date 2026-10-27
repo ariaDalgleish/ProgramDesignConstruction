@@ -27,6 +27,20 @@ The window is `project2.view.PetView`, which extends `JFrame`:
 - **Middle** — the pet's picture (`PetPicturePanel`, drawn with
   `paintComponent`) on the left and the events of the day in a `JTextArea`
   inside a `JScrollPane` on the right.
+
+The pet is a picture, not a drawing made of shapes. Every state of the pet
+has a picture of its own in `src/project2/images`:
+
+| State | Picture |
+|---|---|
+| `SLEEPING` | `sleeping.png` |
+| `AWAKE` | `awake.png` |
+| `ACTIVE` | `active.png` |
+
+The pictures are read from the class path once, when `PetPicturePanel` is
+made, and they are kept in an `EnumMap<PetState, Image>`. The name of the
+state says the name of the file, so a new state needs a new picture and
+nothing else. The name of the pet is written under the picture.
 - **Bottom** — a `FlowLayout` panel with the **Wake**, **Back**, **Today**
   and **Next** buttons. The window's close button replaces the old `quit`
   command, because the frame uses `EXIT_ON_CLOSE`.
@@ -209,7 +223,7 @@ numbers.
 | 2 | Three methods that did the same thing with a different day: `moveToTheDayBefore`, `moveToToday` and `moveToTheNextDay` | `PetCalendarController` | They are now one method, `moveTheDay(BooleanSupplier)`, and it is told what to do. The `BooleanSupplier` is the same idea as the one in the console version. |
 | 3 | The two long listeners of the small window | `AddEventDialog` | The lambda shorthand is used now. |
 | 4 | Three methods in the model that did the same thing: `next`, `back` and `reset` were the same code with a different day | `Pet` | They are now one line each, and the rule "not while the pet is asleep" lives in one method, `moveToThisDate`. |
-| 5 | The numbers of the ears and of the window | `PetView`, `PetPicturePanel`, `AddEventDialog` | They are named constants now, such as `WINDOW_WIDTH` and `EAR_TIP_HEIGHT`. |
+| 5 | The numbers of the ears and of the window | `PetView`, `PetPicturePanel`, `AddEventDialog` | They are named constants now, such as `WINDOW_WIDTH` and `EAR_TIP_HEIGHT`. The ears are gone since then — the pet is a picture now, so `PetPicturePanel` has no numbers of its own. |
 
 The listener on the picture of the pet is still in the long form. The mouse
 listener has several methods in it and the lambda shorthand can only be used
@@ -257,6 +271,7 @@ the finished program.
 | **Encapsulation** | `Event` cannot be changed after it is made — it is `final`, its fields are `final` and there are no setters. `Pet` keeps its state to itself and tells its listeners when something changes. |
 | **Abstraction** | The controller does not know how the events are stored; it asks the service, and the service asks the `EventDao` interface. The window only knows the database through that one interface. |
 | **Inheritance** | `PetView extends JFrame`, `AddEventDialog extends JDialog` and `PetPicturePanel extends JPanel`. In the console version it is `LocalFileCalendarSource extends AbstractCalendarSource`. |
+| **Enums and collections** | `PetState` is an enum, and the picture of every state is kept in an `EnumMap<PetState, Image>`. |
 | **Polymorphism** | `JdbcEventDao` and the stand-in `InMemoryEventDao` are both used through the `EventDao` interface, and the service cannot tell them apart. The controller listens to the pet and to the service through two different listener interfaces. |
 | **Single responsibility** | Every package has one job: the model holds the data, the view draws it, the controller connects them, the service holds the rules and the data layer holds the SQL. |
 | **Open / Closed and dependency inversion** | A new kind of database only needs a new class that implements `EventDao`; the service and the window are not touched. The window is changed without the model being changed with it. |

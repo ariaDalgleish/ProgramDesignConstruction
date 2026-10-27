@@ -34,8 +34,8 @@ public class Project2 {
                 try {
                     EventDao eventDao = EventDaoFactory.createEventDao();
                     CalendarService service = new CalendarService(eventDao);
-                    Pet pet = new Pet("Mochi");
-                    PetView view = new PetView();
+                    Pet pet = new Pet("Mochi", 8_000); // temp idle time!!!
+                    PetView view = new PetView(pet.getName());
 
                     // The controller connects the three parts together.
                     new PetCalendarController(view, pet, service);

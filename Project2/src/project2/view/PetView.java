@@ -51,10 +51,15 @@ public class PetView extends JFrame {
     private final JButton todayButton = new JButton("Today");
     private final JButton nextButton = new JButton("Next");
     private final JButton addButton = new JButton("Add event");
-    private final PetPicturePanel petPicture = new PetPicturePanel();
+    private final PetPicturePanel petPicture;
 
-    public PetView() {
+    /**
+     * @param petName the name of the pet, which is written under its picture
+     */
+    public PetView(String petName) {
         super("Pet Calendar");
+
+        this.petPicture = new PetPicturePanel(petName);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -155,19 +160,12 @@ public class PetView extends JFrame {
 
     /** Shows what the pet is doing. */
     public void showThePetState(PetState state) {
+        petPicture.setState(state);
+
         switch (state) {
-            case SLEEPING -> {
-                speechLabel.setText("\"zzz...\" Click me to wake me up.");
-                petPicture.setAsleep(true);
-            }
-            case AWAKE -> {
-                speechLabel.setText("\"Mmmrm...\" What is on today?");
-                petPicture.setAsleep(false);
-            }
-            case ACTIVE -> {
-                speechLabel.setText("\"Flip!\" Hmm");
-                petPicture.setAsleep(false);
-            }
+            case SLEEPING -> speechLabel.setText("\"zzz...\" Click me to wake me up.");
+            case AWAKE -> speechLabel.setText("\"Mmmrm...\" What is on today?");
+            case ACTIVE -> speechLabel.setText("\"Flip!\" Hmm");
         }
     }
 
